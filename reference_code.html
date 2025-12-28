@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sticker Verse - Premium Superhero Stickers</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Public+Sans:wght@400;700;800&display=swap" rel="stylesheet">
+
+    <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sticker Verse - Ultimate Store</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Public+Sans:wght@400;700;800&display=swap" rel="stylesheet">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'bangers': ['"Bangers"', 'cursive'],
+                        'sans': ['"Public Sans"', 'sans-serif'],
+                    },
+                    colors: {
+                        'brand-yellow': '#fffbeb',
+                        'brand-red': '#dc2626',
+                        'brand-black': '#0f172a'
+                    },
+                    boxShadow: {
+                        'comic': '4px 4px 0px 0px rgba(0,0,0,1)',
+                        'comic-hover': '6px 6px 0px 0px rgba(0,0,0,1)',
+                        'comic-card': '8px 8px 0px 0px rgba(0,0,0,1)',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body { background-color: #fffbeb; color: #0f172a; }
+        .comic-bg {
+            background-image: radial-gradient(#000 1px, transparent 1px);
+            background-size: 20px 20px;
+            opacity: 0.1;
+        }
+        /* Toast Animation */
+        @keyframes slideIn {
+            from { transform: translateX(100%); }
+            to { transform: translateX(0); }
+        }
+        .toast { animation: slideIn 0.3s ease-out forwards; }
+    </style>
+</head>
+<body class="overflow-x-hidden font-sans min-h-screen flex flex-col">
+
+    <div class="fixed inset-0 comic-bg pointer-events-none z-0"></div>
+
+    <div id="toast-container" class="fixed top-24 right-4 z-[60] flex flex-col gap-2"></div>
+
+    <nav class="sticky top-0 z-50 bg-white border-b-4 border-black px-4 py-3 shadow-comic">
+        <div class="container mx-auto flex items-center justify-between">
+            <a href="#" onclick="app.router('home')" class="flex items-center gap-2 group">
+                <div class="w-10 h-10 bg-red-600 border-4 border-black flex items-center justify-center transform group-hover:-rotate-6 transition-transform">
+                    <span class="font-bangers text-white text-2xl mt-1">S</span>
+                </div>
+                <span class="font-bangers text-2xl hidden sm:block tracking-wide">STICKER VERSE</span>
+            </a>
+
+            <div class="hidden md:flex flex-1 max-w-md mx-8 relative">
+                <input type="text" id="globalSearch" placeholder="Search for heroes..." 
+                       class="w-full pl-4 pr-10 py-2 border-4 border-black focus:outline-none focus:bg-yellow-100 font-bold"
+                       oninput="app.handleSearch(this.value)">
+                <i data-lucide="search" class="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500"></i>
+            </div>
+
+            <div class="flex items-center gap-4">
+                <button onclick="app.router('profile')" class="flex items-center gap-2 hover:bg-black hover:text-white p-2 rounded transition-colors border-2 border-transparent hover:border-black">
+                    <i data-lucide="user" class="w-6 h-6"></i>
+                    <div class="hidden sm:block text-left leading-tight">
+                        <p class="text-xs text-gray-500 font-bold group-hover:text-gray-300">Hello, Sumit</p>
+                        <p class="text-sm font-bold">Account</p>
+                    </div>
+                </button>
+
+                <button onclick="app.router('cart')" class="relative p-2 hover:bg-black hover:text-white border-2 border-transparent hover:border-black rounded-lg transition-colors group">
+                    <i data-lucide="shopping-cart" class="w-6 h-6"></i>
+                    <span id="cart-count" class="absolute -top-1 -right-1 bg-red-600 text-white text-xs font-bold w-5 h-5 flex items-center justify-center border-2 border-black rounded-full">0</span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <div id="app" class="flex-grow container mx-auto px-4 py-8 relative z-10">
+        </div>
+
+    <footer class="bg-black text-white border-t-8 border-red-600 py-12 mt-auto relative z-10">
+        <div class="container mx-auto px-4 text-center">
+            <h2 class="font-bangers text-4xl mb-4">STICKER VERSE</h2>
+            <p class="text-gray-400 mb-4">Your #1 Source for Heroic Adhesives</p>
+            <p class="text-sm text-gray-600">© 2025 Sticker Verse. Built for developers.</p>
+        </div>
+    </footer>
+
+    <script>
+        // --- 1. MOCK DATABASE & STATE ---
+        const PRODUCTS = [
+            { id: 1, name: "Dark Knight", price: 12.99, category: "DC", stock: 15, color: "bg-slate-800", icon: "moon", desc: "The protector of Gotham." },
+            { id: 2, name: "Man of Steel", price: 11.99, category: "DC", stock: 20, color: "bg-blue-600", icon: "shield", desc: "Faster than a speeding bullet." },
+            { id: 3, name: "Web Slinger", price: 13.99, category: "Marvel", stock: 8, color: "bg-red-600", icon: "bug", desc: "Your friendly neighborhood sticker." },
+            { id: 4, name: "Iron Avenger", price: 14.99, category: "Marvel", stock: 12, color: "bg-red-700", icon: "zap", desc: "Built with Stark Tech." },
+            { id: 5, name: "The Captain", price: 12.99, category: "Marvel", stock: 18, color: "bg-blue-700", icon: "star", desc: "I can do this all day." },
+            { id: 6, name: "Amazon Warrior", price: 13.99, category: "DC", stock: 10, color: "bg-yellow-500", icon: "sword", desc: "Truth and justice." },
+        ];
+
+        // --- 2. APP LOGIC CLASS ---
+        class App {
+            constructor() {
+                // Load from LocalStorage or initialize defaults
+                this.state = JSON.parse(localStorage.getItem('stickerShopState')) || {
+                    cart: [],
+                    orders: [],
+                    user: {
+                        name: "Sumit Kumar",
+                        email: "sumit.dev@example.com",
+                        phone: "+91 98765 43210",
+                        address: "Chandigarh University, Punjab"
+                    },
+                    currentView: 'home',
+                    searchQuery: ''
+                };
+                this.init();
+            }
+
+            save() {
+                localStorage.setItem('stickerShopState', JSON.stringify(this.state));
+                this.updateCartCount();
+            }
+
+            init() {
+                this.updateCartCount();
+                this.router(this.state.currentView);
+            }
+
+            // --- ROUTING ---
+            router(viewName) {
+                this.state.currentView = viewName;
+                const appDiv = document.getElementById('app');
+                appDiv.innerHTML = ''; // Clear current view
+                window.scrollTo(0, 0);
+
+                if (viewName === 'home') this.renderHome(appDiv);
+                else if (viewName === 'cart') this.renderCart(appDiv);
+                else if (viewName === 'checkout') this.renderCheckout(appDiv);
+                else if (viewName === 'profile') this.renderProfile(appDiv);
+                else if (viewName === 'success') this.renderSuccess(appDiv);
+                
+                lucide.createIcons();
+                this.save();
+            }
+
+            // --- ACTIONS ---
+            addToCart(productId) {
+                const product = PRODUCTS.find(p => p.id === productId);
+                const existingItem = this.state.cart.find(item => item.id === productId);
+
+                if (existingItem) {
+                    existingItem.quantity += 1;
+                } else {
+                    this.state.cart.push({ ...product, quantity: 1 });
+                }
+                
+                this.showToast(`Added ${product.name} to cart!`);
+                this.save();
+            }
+
+            removeFromCart(productId) {
+                this.state.cart = this.state.cart.filter(item => item.id !== productId);
+                this.router('cart'); // Re-render
+            }
+
+            updateQuantity(productId, change) {
+                const item = this.state.cart.find(i => i.id === productId);
+                if (item) {
+                    item.quantity += change;
+                    if (item.quantity <= 0) this.removeFromCart(productId);
+                    else this.router('cart'); // Re-render
+                }
+            }
+
+            getCartTotal() {
+                return this.state.cart.reduce((total, item) => total + (item.price * item.quantity), 0).toFixed(2);
+            }
+
+            placeOrder(event) {
+                event.preventDefault();
+                const form = event.target;
+                
+                // Create Order Object
+                const newOrder = {
+                    orderId: 'ORD-' + Math.floor(100000 + Math.random() * 900000),
+                    date: new Date().toLocaleDateString(),
+                    items: [...this.state.cart],
+                    total: this.getCartTotal(),
+                    status: 'Processing',
+                    shipping: {
+                        name: form.fullName.value,
+                        address: form.address.value,
+                        city: form.city.value
+                    }
+                };
+
+                // Save to History
+                this.state.orders.unshift(newOrder); // Add to top
+                this.state.cart = []; // Clear Cart
+                this.save();
+                this.router('success');
+            }
+
+            updateCartCount() {
+                const count = this.state.cart.reduce((acc, item) => acc + item.quantity, 0);
+                document.getElementById('cart-count').innerText = count;
+            }
+
+            handleSearch(query) {
+                this.state.searchQuery = query;
+                if(this.state.currentView !== 'home') this.router('home');
+                else this.renderHome(document.getElementById('app')); // Re-render just home
+                lucide.createIcons();
+            }
+
+            showToast(message) {
+                const container = document.getElementById('toast-container');
+                const toast = document.createElement('div');
+                toast.className = 'toast bg-black text-white px-6 py-3 border-l-4 border-red-500 font-bold shadow-lg flex items-center gap-2';
+                toast.innerHTML = `<i data-lucide="check-circle" class="w-4 h-4 text-green-400"></i> ${message}`;
+                container.appendChild(toast);
+                lucide.createIcons();
+                setTimeout(() => toast.remove(), 3000);
+            }
+
+            // --- VIEWS (RENDERERS) ---
+
+            renderHome(container) {
+                // Filter Products
+                const filtered = PRODUCTS.filter(p => p.name.toLowerCase().includes(this.state.searchQuery.toLowerCase()));
+
+                let html = `
+                    <div class="mb-8 text-center">
+                        <span class="inline-block bg-yellow-400 border-4 border-black px-4 py-1 font-bold mb-4 shadow-comic rotate-1">Trending Now</span>
+                        <h1 class="font-bangers text-6xl text-brand-black">FRESH DROPS</h1>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                `;
+
+                if (filtered.length === 0) {
+                    html += `<div class="col-span-full text-center py-20 text-2xl font-bold text-gray-400">No heroes found matching "${this.state.searchQuery}"</div>`;
+                } else {
+                    filtered.forEach(p => {
+                        html += `
+                        <div class="bg-white border-4 border-black p-4 flex flex-col shadow-comic-card hover:shadow-comic-hover hover:-translate-y-1 transition-all">
+                            <div class="h-48 ${p.color} border-4 border-black mb-4 flex items-center justify-center relative overflow-hidden group">
+                                <div class="absolute inset-0 bg-black opacity-0 group-hover:opacity-10 transition-opacity"></div>
+                                <div class="bg-white p-4 rounded-full border-4 border-black shadow-lg">
+                                    <i data-lucide="${p.icon}" class="w-12 h-12 text-black"></i>
+                                </div>
+                            </div>
+                            <div class="flex justify-between items-start mb-2">
+                                <div>
+                                    <span class="text-xs font-bold bg-black text-white px-2 py-0.5">${p.category}</span>
+                                    <h3 class="font-bangers text-2xl mt-1">${p.name}</h3>
+                                    <p class="text-sm text-gray-500 font-bold">${p.desc}</p>
+                                </div>
+                                <span class="font-bangers text-xl">$${p.price}</span>
+                            </div>
+                            <button onclick="app.addToCart(${p.id})" class="mt-auto w-full bg-black text-white font-bold py-2 border-2 border-black hover:bg-red-600 transition-colors flex items-center justify-center gap-2">
+                                ADD TO CART <i data-lucide="plus" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+                        `;
+                    });
+                }
+                html += `</div>`;
+                container.innerHTML = html;
+            }
+
+            renderCart(container) {
+                if (this.state.cart.length === 0) {
+                    container.innerHTML = `
+                        <div class="text-center py-20 bg-white border-4 border-black shadow-comic">
+                            <i data-lucide="shopping-cart" class="w-20 h-20 mx-auto text-gray-300 mb-4"></i>
+                            <h2 class="font-bangers text-4xl mb-2">Your Cart is Empty!</h2>
+                            <p class="mb-6 font-bold text-gray-500">Go find some heroes to stick.</p>
+                            <button onclick="app.router('home')" class="bg-red-600 text-white px-8 py-3 border-4 border-black font-bold shadow-comic hover:translate-y-1 transition-all">
+                                START SHOPPING
+                            </button>
+                        </div>
+                    `;
+                    return;
+                }
+
+                let html = `
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                        <div class="lg:col-span-2 space-y-4">
+                            <h2 class="font-bangers text-4xl mb-6">Shopping Cart (${this.state.cart.length} items)</h2>
+                `;
+
+                this.state.cart.forEach(item => {
+                    html += `
+                        <div class="bg-white border-4 border-black p-4 flex gap-4 items-center shadow-sm">
+                            <div class="w-20 h-20 ${item.color} border-2 border-black flex items-center justify-center shrink-0">
+                                <i data-lucide="${item.icon}" class="text-white w-8 h-8"></i>
+                            </div>
+                            <div class="flex-grow">
+                                <h3 class="font-bangers text-xl">${item.name}</h3>
+                                <p class="font-bold text-red-600">$${item.price}</p>
+                                <p class="text-green-600 text-sm font-bold">In Stock</p>
+                            </div>
+                            <div class="flex items-center gap-2 bg-gray-100 border-2 border-black p-1">
+                                <button onclick="app.updateQuantity(${item.id}, -1)" class="p-1 hover:bg-gray-200"><i data-lucide="minus" class="w-4 h-4"></i></button>
+                                <span class="font-bold w-6 text-center">${item.quantity}</span>
+                                <button onclick="app.updateQuantity(${item.id}, 1)" class="p-1 hover:bg-gray-200"><i data-lucide="plus" class="w-4 h-4"></i></button>
+                            </div>
+                            <button onclick="app.removeFromCart(${item.id})" class="text-gray-400 hover:text-red-600 ml-2">
+                                <i data-lucide="trash-2" class="w-5 h-5"></i>
+                            </button>
+                        </div>
+                    `;
+                });
+
+                html += `</div>
+                        <div class="lg:col-span-1">
+                            <div class="bg-white border-4 border-black p-6 shadow-comic sticky top-24">
+                                <h3 class="font-bangers text-2xl mb-4 border-b-4 border-black pb-2">Order Summary</h3>
+                                <div class="flex justify-between mb-2 font-bold text-gray-600">
+                                    <span>Subtotal</span>
+                                    <span>$${this.getCartTotal()}</span>
+                                </div>
+                                <div class="flex justify-between mb-4 font-bold text-gray-600">
+                                    <span>Shipping</span>
+                                    <span>$5.00</span>
+                                </div>
+                                <div class="flex justify-between mb-6 text-xl font-black border-t-2 border-gray-200 pt-2">
+                                    <span>Total</span>
+                                    <span>$${(parseFloat(this.getCartTotal()) + 5).toFixed(2)}</span>
+                                </div>
+                                <button onclick="app.router('checkout')" class="w-full bg-yellow-400 text-black border-4 border-black font-bold py-3 text-lg hover:bg-yellow-500 shadow-comic hover:shadow-none hover:translate-x-1 hover:translate-y-1 transition-all">
+                                    PROCEED TO CHECKOUT
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                container.innerHTML = html;
+            }
+
+            renderCheckout(container) {
+                const total = (parseFloat(this.getCartTotal()) + 5).toFixed(2);
+                container.innerHTML = `
+                    <div class="max-w-2xl mx-auto">
+                        <div class="mb-6 flex items-center gap-2 text-gray-500 font-bold text-sm">
+                            <span class="cursor-pointer hover:text-black" onclick="app.router('cart')">Cart</span>
+                            <i data-lucide="chevron-right" class="w-4 h-4"></i>
+                            <span class="text-black">Checkout</span>
+                        </div>
+
+                        <div class="bg-white border-4 border-black p-8 shadow-comic">
+                            <h2 class="font-bangers text-4xl mb-6 flex items-center gap-3">
+                                <i data-lucide="truck" class="w-8 h-8"></i> Shipping Details
+                            </h2>
+                            
+                            <form onsubmit="app.placeOrder(event)" class="space-y-4">
+                                <div>
+                                    <label class="block font-bold mb-1">Full Name</label>
+                                    <input type="text" name="fullName" value="${this.state.user.name}" required class="w-full border-4 border-black p-2 font-bold bg-gray-50 focus:bg-white focus:outline-none">
+                                </div>
+                                <div>
+                                    <label class="block font-bold mb-1">Shipping Address</label>
+                                    <input type="text" name="address" value="${this.state.user.address}" required class="w-full border-4 border-black p-2 font-bold bg-gray-50 focus:bg-white focus:outline-none">
+                                </div>
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block font-bold mb-1">City</label>
+                                        <input type="text" name="city" required class="w-full border-4 border-black p-2 font-bold bg-gray-50 focus:bg-white focus:outline-none">
+                                    </div>
+                                    <div>
+                                        <label class="block font-bold mb-1">Zip Code</label>
+                                        <input type="text" name="zip" required class="w-full border-4 border-black p-2 font-bold bg-gray-50 focus:bg-white focus:outline-none">
+                                    </div>
+                                </div>
+
+                                <div class="mt-8 pt-6 border-t-4 border-black">
+                                    <h3 class="font-bangers text-2xl mb-4">Payment Method</h3>
+                                    <div class="flex gap-4 mb-4">
+                                        <div class="flex-1 border-4 border-black p-3 bg-yellow-100 font-bold flex items-center justify-center gap-2 cursor-pointer">
+                                            <i data-lucide="credit-card" class="w-5 h-5"></i> Card (Simulated)
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <button type="submit" class="w-full bg-red-600 text-white font-bangers text-2xl py-4 border-4 border-black hover:bg-red-700 shadow-comic hover:shadow-none hover:translate-x-1 hover:translate-y-1 transition-all mt-4">
+                                    PAY $${total} & PLACE ORDER
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                `;
+            }
+
+            renderSuccess(container) {
+                const lastOrder = this.state.orders[0];
+                container.innerHTML = `
+                    <div class="max-w-xl mx-auto text-center py-12">
+                        <div class="bg-green-100 border-4 border-black rounded-full w-24 h-24 flex items-center justify-center mx-auto mb-6">
+                            <i data-lucide="check" class="w-12 h-12 text-green-600"></i>
+                        </div>
+                        <h1 class="font-bangers text-5xl mb-4">ORDER PLACED!</h1>
+                        <p class="text-xl font-bold text-gray-600 mb-8">Thank you, ${this.state.user.name}. Your heroes are on the way.</p>
+                        
+                        <div class="bg-white border-4 border-black p-6 text-left shadow-comic mb-8">
+                            <p class="text-gray-500 font-bold text-xs uppercase tracking-wider">Order ID</p>
+                            <p class="text-2xl font-black font-mono mb-4 text-red-600">#${lastOrder.orderId}</p>
+                            
+                            <p class="text-gray-500 font-bold text-xs uppercase tracking-wider">Estimated Delivery</p>
+                            <p class="text-xl font-bold mb-4">Dec 30, 2025</p>
+                        </div>
+
+                        <div class="flex gap-4 justify-center">
+                            <button onclick="app.router('profile')" class="bg-black text-white px-6 py-3 border-4 border-black font-bold">View Order</button>
+                            <button onclick="app.router('home')" class="bg-white text-black px-6 py-3 border-4 border-black font-bold hover:bg-gray-50">Continue Shopping</button>
+                        </div>
+                    </div>
+                `;
+            }
+
+            renderProfile(container) {
+                let html = `
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                        <div class="md:col-span-1">
+                            <div class="bg-white border-4 border-black p-6 text-center shadow-comic mb-6">
+                                <div class="w-24 h-24 bg-yellow-300 border-4 border-black rounded-full mx-auto mb-4 flex items-center justify-center">
+                                    <span class="font-bangers text-4xl">SK</span>
+                                </div>
+                                <h2 class="font-bangers text-2xl">${this.state.user.name}</h2>
+                                <p class="text-gray-500 font-bold text-sm">Super Member</p>
+                            </div>
+                            <div class="bg-white border-4 border-black p-0 shadow-comic">
+                                <div class="p-4 border-b-2 border-black font-bold bg-black text-white cursor-pointer">Your Orders</div>
+                                <div class="p-4 border-b-2 border-black font-bold text-gray-500 hover:bg-gray-50 cursor-pointer">Addresses</div>
+                                <div class="p-4 font-bold text-gray-500 hover:bg-gray-50 cursor-pointer">Login & Security</div>
+                            </div>
+                        </div>
+
+                        <div class="md:col-span-3">
+                            <h2 class="font-bangers text-4xl mb-6">Your Order History</h2>
+                `;
+
+                if (this.state.orders.length === 0) {
+                    html += `
+                        <div class="bg-white border-4 border-black p-8 text-center">
+                            <p class="font-bold text-xl text-gray-400">You haven't placed any orders yet.</p>
+                        </div>
+                    `;
+                } else {
+                    this.state.orders.forEach(order => {
+                        html += `
+                            <div class="bg-white border-4 border-black mb-6 shadow-sm overflow-hidden">
+                                <div class="bg-gray-100 border-b-4 border-black p-4 flex flex-wrap gap-6 text-sm">
+                                    <div>
+                                        <p class="font-bold text-gray-500 uppercase text-xs">Order Placed</p>
+                                        <p class="font-bold">${order.date}</p>
+                                    </div>
+                                    <div>
+                                        <p class="font-bold text-gray-500 uppercase text-xs">Total</p>
+                                        <p class="font-bold">$${order.total}</p>
+                                    </div>
+                                    <div>
+                                        <p class="font-bold text-gray-500 uppercase text-xs">Ship To</p>
+                                        <p class="font-bold text-blue-600 hover:underline cursor-pointer">${order.shipping.name}</p>
+                                    </div>
+                                    <div class="ml-auto">
+                                        <p class="font-bold text-gray-500 uppercase text-xs">Order # ${order.orderId}</p>
+                                        <div class="flex gap-2 text-blue-600 font-bold">
+                                            <a href="#" class="hover:underline">Invoice</a>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="p-4">
+                                    <h3 class="font-black text-xl mb-4 text-green-600">Arriving Tomorrow by 8 PM</h3>
+                                    ${order.items.map(item => `
+                                        <div class="flex gap-4 mb-4 last:mb-0">
+                                            <div class="w-16 h-16 ${item.color} border-2 border-black flex items-center justify-center shrink-0">
+                                                <i data-lucide="${item.icon}" class="text-white w-6 h-6"></i>
+                                            </div>
+                                            <div>
+                                                <a href="#" class="font-bold text-lg hover:text-red-600 hover:underline">${item.name}</a>
+                                                <p class="text-sm text-gray-500">Qty: ${item.quantity} | Sold by: StickerVerse</p>
+                                                <button onclick="app.addToCart(${item.id})" class="mt-2 bg-yellow-400 border-2 border-black px-3 py-1 text-xs font-bold hover:bg-yellow-500">
+                                                    Buy it again
+                                                </button>
+                                            </div>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        `;
+                    });
+                }
+
+                html += `</div></div>`;
+                container.innerHTML = html;
+            }
+        }
+
+        // --- 3. INITIALIZE ---
+        const app = new App();
+
+    </script>
+</body>
+</html>
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'bangers': ['"Bangers"', 'cursive'],
+                        'sans': ['"Public Sans"', 'sans-serif'],
+                    },
+                    boxShadow: {
+                        'comic': '4px 4px 0px 0px rgba(0,0,0,1)',
+                        'comic-hover': '6px 6px 0px 0px rgba(0,0,0,1)',
+                        'comic-card': '8px 8px 0px 0px rgba(0,0,0,1)',
+                        'comic-card-hover': '12px 12px 0px 0px rgba(0,0,0,1)',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Custom Utilities */
+        body {
+            background-color: #fffbeb; /* yellow-50 */
+            color: #0f172a;
+        }
+        .comic-bg {
+            background-image: radial-gradient(#000 1px, transparent 1px);
+            background-size: 20px 20px;
+            opacity: 0.1;
+        }
+        .card-enter {
+            animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+            opacity: 0;
+            transform: scale(0.9);
+        }
+        @keyframes popIn {
+            to { opacity: 1; transform: scale(1); }
+        }
+    </style>
+</head>
+<body class="overflow-x-hidden selection:bg-black selection:text-white font-sans">
+
+    <div class="fixed inset-0 comic-bg pointer-events-none"></div>
+
+    <nav class="sticky top-0 z-50 bg-white border-b-4 border-black px-4 py-4 shadow-comic">
+        <div class="container mx-auto flex items-center justify-between">
+            <a href="#" class="flex items-center gap-2 group">
+                <div class="w-12 h-12 bg-red-600 border-4 border-black flex items-center justify-center transform group-hover:-rotate-6 transition-transform">
+                    <span class="font-bangers text-white text-3xl mt-1">S</span>
+                </div>
+                <span class="font-bangers text-3xl hidden sm:block tracking-wide">STICKER VERSE</span>
+            </a>
+
+            <div class="hidden md:flex items-center gap-8 font-bold text-lg">
+                <a href="#" class="hover:text-red-600 hover:underline decoration-4 underline-offset-4 transition-all">SHOP</a>
+                <a href="#" class="hover:text-red-600 hover:underline decoration-4 underline-offset-4 transition-all">COLLECTIONS</a>
+                <a href="#" class="hover:text-red-600 hover:underline decoration-4 underline-offset-4 transition-all">ABOUT</a>
+            </div>
+
+            <div class="flex items-center gap-4">
+                <div class="hidden md:flex relative">
+                    <input type="text" id="searchInput" placeholder="Find a hero..." 
+                           class="pl-4 pr-10 py-2 border-4 border-black rounded-none focus:outline-none focus:bg-yellow-100 font-bold placeholder:text-slate-500 w-64 transition-colors">
+                    <i data-lucide="search" class="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5"></i>
+                </div>
+                
+                <button class="relative p-2 hover:bg-black hover:text-white border-2 border-transparent hover:border-black rounded-lg transition-colors group">
+                    <i data-lucide="shopping-cart" class="w-7 h-7"></i>
+                    <span class="absolute -top-1 -right-1 bg-red-600 text-white text-xs font-bold w-5 h-5 flex items-center justify-center border-2 border-black rounded-full group-hover:border-white">3</span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <section class="relative pt-20 pb-24 px-4 overflow-hidden">
+        <div class="container mx-auto text-center relative z-10">
+            <span class="inline-block bg-yellow-400 border-4 border-black px-4 py-1 font-bold mb-6 text-lg shadow-comic rotate-2">
+                PREMIUM VINYL COLLECTION
+            </span>
+            <h1 class="font-bangers text-7xl md:text-9xl leading-[0.9] mb-8 text-transparent bg-clip-text bg-gradient-to-br from-red-600 to-blue-600 drop-shadow-[4px_4px_0px_rgba(0,0,0,1)]">
+                SUPERHERO<br />STICKERS
+            </h1>
+            <p class="text-xl md:text-2xl max-w-2xl mx-auto mb-10 font-medium text-slate-700">
+                Stick your allegiance to your laptop, bottle, or batmobile. Waterproof, scratch-resistant, and vibrant.
+            </p>
+            
+            <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
+                <button class="px-10 py-4 bg-red-600 text-white border-4 border-black text-xl font-bold shadow-comic-hover hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-comic active:translate-x-[6px] active:translate-y-[6px] active:shadow-none transition-all">
+                    SHOP NOW
+                </button>
+                <button class="px-10 py-4 bg-white text-black border-4 border-black text-xl font-bold shadow-comic-hover hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-comic active:translate-x-[6px] active:translate-y-[6px] active:shadow-none transition-all">
+                    VIEW LOOKBOOK
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <section class="container mx-auto px-4 mb-12">
+        <div class="flex flex-wrap justify-center gap-4" id="filters">
+            <button onclick="filterProducts('All')" class="filter-btn active px-8 py-2 border-4 border-black font-bold text-lg transition-all bg-black text-white shadow-comic">
+                ALL
+            </button>
+            <button onclick="filterProducts('Marvel')" class="filter-btn px-8 py-2 border-4 border-black font-bold text-lg transition-all bg-white text-black hover:bg-yellow-200 shadow-comic">
+                MARVEL
+            </button>
+            <button onclick="filterProducts('DC')" class="filter-btn px-8 py-2 border-4 border-black font-bold text-lg transition-all bg-white text-black hover:bg-yellow-200 shadow-comic">
+                DC
+            </button>
+        </div>
+    </section>
+
+    <main class="container mx-auto px-4 pb-24">
+        <div id="product-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-8 md:gap-12">
+            </div>
+    </main>
+
+    <footer class="bg-black text-white border-t-8 border-red-600 py-16">
+        <div class="container mx-auto px-4 text-center">
+            <h2 class="font-bangers text-5xl mb-6">JOIN THE SQUAD</h2>
+            <p class="max-w-md mx-auto text-slate-400 mb-8">
+                Subscribe for exclusive drops, limited editions, and villainous discounts.
+            </p>
+            <div class="flex flex-col sm:flex-row justify-center max-w-md mx-auto gap-4">
+                <input type="email" placeholder="Your secret identity (email)" class="flex-1 px-4 py-3 bg-slate-900 border-2 border-slate-700 focus:border-red-600 focus:outline-none text-white font-bold">
+                <button class="px-8 py-3 bg-red-600 text-white font-bold border-2 border-red-600 hover:bg-red-700 transition-colors">
+                    SUBSCRIBE
+                </button>
+            </div>
+            <div class="mt-16 text-slate-600 text-sm font-bold">
+                © 2025 STICKER VERSE. NO CAPES ALLOWED.
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // --- Data ---
+        const products = [
+            { id: 1, name: "Dark Knight", price: 12.99, category: "DC", stock: 15, color: "bg-slate-800", icon: "moon" },
+            { id: 2, name: "Man of Steel", price: 11.99, category: "DC", stock: 20, color: "bg-blue-600", icon: "shield" },
+            { id: 3, name: "Web Slinger", price: 13.99, category: "Marvel", stock: 4, color: "bg-red-600", icon: "bug" },
+            { id: 4, name: "Iron Avenger", price: 14.99, category: "Marvel", stock: 12, color: "bg-red-700", icon: "zap" },
+            { id: 5, name: "The Captain", price: 12.99, category: "Marvel", stock: 18, color: "bg-blue-700", icon: "star" },
+            { id: 6, name: "Amazon Warrior", price: 13.99, category: "DC", stock: 10, color: "bg-yellow-500", icon: "sword" },
+            { id: 7, name: "Gamma Rage", price: 11.99, category: "Marvel", stock: 3, color: "bg-green-600", icon: "frown" },
+            { id: 8, name: "Thunder God", price: 15.99, category: "Marvel", stock: 14, color: "bg-slate-600", icon: "hammer" },
+            { id: 9, name: "Speedster", price: 12.99, category: "DC", stock: 7, color: "bg-red-500", icon: "zap-off" },
+        ];
+
+        let activeCategory = 'All';
+        let searchQuery = '';
+
+        // --- Render Function ---
+        function renderProducts() {
+            const grid = document.getElementById('product-grid');
+            grid.innerHTML = ''; // Clear current grid
+
+            const filtered = products.filter(p => {
+                const matchesCat = activeCategory === 'All' || p.category === activeCategory;
+                const matchesSearch = p.name.toLowerCase().includes(searchQuery.toLowerCase());
+                return matchesCat && matchesSearch;
+            });
+
+            if (filtered.length === 0) {
+                grid.innerHTML = `<div class="col-span-full text-center py-12 font-bangers text-3xl text-gray-400">NO HEROES FOUND...</div>`;
+                return;
+            }
+
+            filtered.forEach((product, index) => {
+                // Calculate animation delay for staggered effect
+                const delay = index * 100;
+                
+                const cardHTML = `
+                <div class="card-enter group relative h-full flex flex-col" style="animation-delay: ${delay}ms">
+                    <div class="bg-white border-4 border-black p-4 h-full flex flex-col shadow-comic-card group-hover:shadow-comic-card-hover group-hover:-translate-y-2 transition-all duration-300">
+                        
+                        <div class="relative h-64 w-full ${product.color} border-4 border-black mb-6 flex items-center justify-center overflow-hidden bg-opacity-90">
+                            <div class="absolute inset-0 comic-bg opacity-50 mix-blend-overlay"></div>
+                            
+                            <div class="relative z-10 transform group-hover:scale-110 transition-transform duration-300">
+                               <div class="w-32 h-32 rounded-full border-4 border-black bg-white flex items-center justify-center shadow-lg">
+                                  <i data-lucide="${product.icon}" class="w-16 h-16 text-black"></i>
+                               </div>
+                            </div>
+
+                            ${product.stock < 5 ? `
+                            <div class="absolute top-2 left-2 bg-red-500 text-white text-xs font-bold px-2 py-1 border-2 border-black rotate-[-6deg]">
+                                ONLY ${product.stock} LEFT!
+                            </div>` : ''}
+                            
+                            <button class="absolute top-2 right-2 bg-white p-2 border-2 border-black hover:bg-red-100 transition-colors z-20">
+                                <i data-lucide="heart" class="w-5 h-5 text-black"></i>
+                            </button>
+                        </div>
+
+                        <div class="flex flex-col flex-grow">
+                            <div class="flex justify-between items-start mb-2">
+                                <div>
+                                    <span class="text-xs font-bold bg-black text-white px-2 py-0.5 mb-2 inline-block">
+                                        ${product.category.toUpperCase()}
+                                    </span>
+                                    <h3 class="font-bangers text-3xl tracking-wide leading-none">
+                                        ${product.name.toUpperCase()}
+                                    </h3>
+                                </div>
+                                <span class="font-bangers text-2xl">$${product.price}</span>
+                            </div>
+
+                            <div class="mt-auto pt-4">
+                                <button class="w-full bg-black text-white font-bold py-3 border-2 border-black hover:bg-slate-800 transition-colors flex items-center justify-center gap-2">
+                                    <i data-lucide="shopping-cart" class="w-5 h-5"></i>
+                                    ADD TO CART
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                `;
+                grid.innerHTML += cardHTML;
+            });
+
+            // Re-initialize icons for new elements
+            lucide.createIcons();
+        }
+
+        // --- Event Handlers ---
+        
+        // Filter Buttons
+        function filterProducts(category) {
+            activeCategory = category;
+            
+            // Update UI buttons
+            const buttons = document.querySelectorAll('.filter-btn');
+            buttons.forEach(btn => {
+                if(btn.textContent.trim() === category.toUpperCase()) {
+                    btn.classList.remove('bg-white', 'text-black', 'hover:bg-yellow-200');
+                    btn.classList.add('bg-black', 'text-white');
+                } else {
+                    btn.classList.add('bg-white', 'text-black', 'hover:bg-yellow-200');
+                    btn.classList.remove('bg-black', 'text-white');
+                }
+            });
+
+            renderProducts();
+        }
+
+        // Search Input
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            searchQuery = e.target.value;
+            renderProducts();
+        });
+
+        // Initial Render
+        document.addEventListener('DOMContentLoaded', () => {
+            renderProducts();
+            lucide.createIcons();
+        });
+
+    </script>
+</body>
+</html>
