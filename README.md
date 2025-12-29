@@ -105,8 +105,6 @@ No animation libraries are used.
 Flow:
 Home → Shop → Product → Cart → Checkout → Profile
 
-yaml
-Copy code
 
 ---
 
@@ -157,8 +155,6 @@ index.html
 ├── UI interactions
 └── Animation logic
 
-yaml
-Copy code
 
 ---
 
@@ -181,10 +177,10 @@ This project is **frontend-only** and does not require any build tools.
 
 ### Option 1: Run Locally
 1. Clone the repository:
-   ```bash
+
    git clone https://github.com/your-username/sticker-verse.git
+   
 Open the project folder:
 
-bash
-Copy code
+
 cd sticker-verse
