@@ -34,8 +34,6 @@ Below are real screenshots showcasing the UI, animations, and flow of the Sticke
 ### 📦 Product Detail Page (PDP)
 ![Product Page](./screenshots/product.png)
 
-### 🛒 Cart & Checkout
-![Cart Page](./screenshots/cart.png)
 
 ### 👤 Profile Page
 ![Profile Page](./screenshots/profile.png)
