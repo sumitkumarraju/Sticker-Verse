@@ -21,6 +21,29 @@ All functionality is handled on the **client side** using JavaScript and browser
 
 ---
 
+## 🖼 Image Proof (Project Screenshots)
+
+Below are real screenshots showcasing the UI, animations, and flow of the Sticker Verse website.
+
+### 🏠 Home Page
+![Home Page](./screenshots/home.png)
+
+### 🛍 Shop Page with Filters
+![Shop Page](./screenshots/shop.png)
+
+### 📦 Product Detail Page (PDP)
+![Product Page](./screenshots/product.png)
+
+### 🛒 Cart & Checkout
+![Cart Page](./screenshots/cart.png)
+
+### 👤 Profile Page
+![Profile Page](./screenshots/profile.png)
+
+> Screenshots demonstrate real UI interactions, comic-style animations, and layout structure.
+
+---
+
 ## 🧩 Features Breakdown
 
 ### 🏠 Home Page
@@ -103,6 +126,9 @@ No animation libraries are used.
 - No page reloads (SPA-like behavior)
 
 Flow:
+
+
+
 Home → Shop → Product → Cart → Checkout → Profile
 
 
@@ -143,6 +169,8 @@ This structure mimics real-world frontend state handling.
 
 ## 🗂 Project Structure
 
+
+
 index.html
 │
 ├── Tailwind CSS (CDN)
@@ -177,10 +205,10 @@ This project is **frontend-only** and does not require any build tools.
 
 ### Option 1: Run Locally
 1. Clone the repository:
-
+  
    git clone https://github.com/your-username/sticker-verse.git
-   
-Open the project folder:
 
+
+Open the project folder:
 
 cd sticker-verse
