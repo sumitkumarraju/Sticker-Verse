@@ -1,7 +1,7 @@
 'use client';
 
 import {
-    ShoppingCart, Heart, Eye, Star, Sparkles,
+    ShoppingCart, Heart, Eye, Star, Sparkles, Check,
     Moon, Shield, Bug, Zap, Sword, Frown, Hammer
 } from 'lucide-react';
 import { useShop } from '@/context/ShopContext';
@@ -15,7 +15,7 @@ const ICON_MAP = {
 };
 
 export default function ProductCard({ product, index }) {
-    const { addToCart, toggleWishlist, wishlist, setActiveProduct } = useShop();
+    const { addToCart, toggleWishlist, wishlist, setActiveProduct, toggleCompare, compareList } = useShop();
     const isWished = wishlist.includes(product.id);
     const cardRef = useRef(null);
 
@@ -106,6 +106,22 @@ export default function ProductCard({ product, index }) {
             >
                 <ShoppingCart className="w-4 h-4" /> ADD TO CART
             </button>
+
+            {/* Compare Checkbox */}
+            <div className="mt-3 pt-2 border-t-2 border-gray-100 flex items-center gap-2 pointer-events-auto">
+                <div
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        toggleCompare(product.id);
+                    }}
+                    className="flex items-center gap-2 cursor-pointer group/compare"
+                >
+                    <div className={`w-4 h-4 border-2 border-black flex items-center justify-center transition-colors ${compareList.includes(product.id) ? 'bg-black' : 'bg-white group-hover/compare:bg-gray-200'}`}>
+                        {compareList.includes(product.id) && <Check className="w-3 h-3 text-white" />}
+                    </div>
+                    <span className="text-[10px] font-bold text-gray-400 group-hover/compare:text-black transition-colors">COMPARE</span>
+                </div>
+            </div>
         </div>
     );
 }

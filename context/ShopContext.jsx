@@ -19,8 +19,8 @@ export function ShopProvider({ children }) {
     // UI State
     const [isCartOpen, setIsCartOpen] = useState(false);
     const [activeProduct, setActiveProduct] = useState(null); // For Modal
-
     const [coupon, setCoupon] = useState(null);
+    const [compareList, setCompareList] = useState([]);
 
     // Load state from localStorage on mount
     useEffect(() => {
@@ -32,6 +32,7 @@ export function ShopProvider({ children }) {
                 setWishlist(parsed.wishlist || []);
                 setOrders(parsed.orders || []);
                 setCoupon(parsed.coupon || null);
+                setCompareList(parsed.compareList || []);
                 // User can be updated here if needed
             } catch (e) {
                 console.error("Failed to parse state from localStorage", e);
@@ -41,9 +42,9 @@ export function ShopProvider({ children }) {
 
     // Save state to localStorage whenever it changes
     useEffect(() => {
-        const stateToSave = { cart, wishlist, orders, coupon };
+        const stateToSave = { cart, wishlist, orders, coupon, compareList };
         localStorage.setItem('stickerShopStateV2', JSON.stringify(stateToSave));
-    }, [cart, wishlist, orders, coupon]);
+    }, [cart, wishlist, orders, coupon, compareList]);
 
     const addToCart = (product) => {
         setCart(prev => {
@@ -84,6 +85,21 @@ export function ShopProvider({ children }) {
         }
     };
 
+    const toggleCompare = (productId) => {
+        if (compareList.includes(productId)) {
+            setCompareList(prev => prev.filter(id => id !== productId));
+        } else {
+            if (compareList.length >= 2) {
+                showToast("Only 2 items allowed in Versus Mode!", "error");
+                return;
+            }
+            setCompareList(prev => [...prev, productId]);
+            showToast("Added to Arena!");
+        }
+    };
+
+    const clearCompare = () => setCompareList([]);
+
     const clearCart = () => setCart([]);
 
     const applyCoupon = (code) => {
@@ -122,6 +138,8 @@ export function ShopProvider({ children }) {
         }, 3000);
     };
 
+    const [isCompareOpen, setIsCompareOpen] = useState(false);
+
     return (
         <ShopContext.Provider value={{
             cart, addToCart, removeFromCart, updateQuantity, clearCart,
@@ -131,7 +149,9 @@ export function ShopProvider({ children }) {
             toasts, showToast,
             isCartOpen, setIsCartOpen,
             activeProduct, setActiveProduct,
-            coupon, applyCoupon, removeCoupon
+            coupon, applyCoupon, removeCoupon,
+            compareList, toggleCompare, clearCompare,
+            isCompareOpen, setIsCompareOpen
         }}>
             {children}
         </ShopContext.Provider>

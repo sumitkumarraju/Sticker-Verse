@@ -8,6 +8,8 @@ import ProductModal from "@/components/ProductModal";
 import ToastContainer from "@/components/ToastContainer";
 import PowEffect from "@/components/PowEffect";
 import SpinWheel from "@/components/SpinWheel";
+import CompareWidget from "@/components/CompareWidget";
+import FloatingControls from "@/components/FloatingControls";
 import { Suspense } from 'react';
 
 const bangers = Bangers({
@@ -44,6 +46,8 @@ export default function RootLayout({ children }) {
           <ToastContainer />
           <PowEffect />
           <SpinWheel />
+          <CompareWidget />
+          <FloatingControls />
         </ShopProvider>
       </body>
     </html>
